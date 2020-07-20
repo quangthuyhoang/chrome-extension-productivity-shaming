@@ -3,7 +3,12 @@ const path = require("path");
 module.exports = {
   entry: {
     popup: path.join(__dirname, "src/popup/index.tsx"),
-    eventPage: path.join(__dirname, "src/eventPage.ts")
+    eventPage: path.join(__dirname, "src/eventPage.ts"),
+    urlFilter: path.join(__dirname, "src/urlFilter.ts"),
+    background: path.join(__dirname, "src/background.ts"),
+    "open-dialog": path.join(__dirname, "src/open-dialog.ts"),
+    options: path.join(__dirname, "src/options.js"),
+    rootOptions: path.join(__dirname, "src/options/index.tsx")
   },
   output: {
     path: path.join(__dirname, "dist/js"),

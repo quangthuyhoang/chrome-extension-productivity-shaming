@@ -10,21 +10,24 @@
         "default_icon": "icon16.png",
         "default_popup": "popup.html"
     },
-   
+
     "background": {
         "scripts": ["js/eventPage.js", "js/urlFilter.js", "js/background.js"],
         "persistent": false
     },
+    "content_scripts": [{
+        "matches": ["https://*.reddit.com/*"],
+        "js": ["js/open-dialog.js"]
+    }],
     "icons": {
         "16": "icon16.png",
         "48": "icon48.png",
         "128": "icon128.png"
     },
-    "optional_permissions": ["tabs", "https://*/*"],
-    "options_page": "option.html",
+
     "permissions": [
+        "tabs",
         "webNavigation",
-        "activeTab",
-        "storage"
+        "activeTab"
     ]
 }

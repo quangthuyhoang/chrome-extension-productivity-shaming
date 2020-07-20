@@ -1,0 +1,26 @@
+ul 
+  li {
+  list-style-type: none;  
+}
+
+.listItem {
+  min-height: 40px;
+    background-color: yellow;
+    border:1px solid grey;
+    margin-right: 35px;
+    position: relative;
+}
+
+.cross-out {
+  text-decoration: line-through;
+}
+
+.label {
+  margin-left: 5px;
+}
+
+.ListItem__closeButton {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+}
