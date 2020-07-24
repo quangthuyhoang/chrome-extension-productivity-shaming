@@ -48,14 +48,14 @@ function BaseInput({
         placeholder={placeholder}
         value={value}
         onChange={onChange}
-        style={error && {border: 'solid 1px red'}}
+        // style={error && {border: 'solid 1px red'}}
         {...props}/>
         <span className="focus-border">
             	<i></i>
             </span>
         {children}
         
-      {error && <div className="error" style={{color: 'red'}}>{error}</div>}
+      {error && <div className="error" style={{color: 'red'}}>{message}</div>}
       {success && <div className="success" >{message}</div>}
     </div>
   );

@@ -47,6 +47,13 @@ const useStyles = makeStyles({
   dropDownInput_background: {
     fontSize: '0.8rem',
     color: 'grey'
+  },
+  dropdown_Button: {
+    height: '100%',
+    width: '50px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 })
 
@@ -63,16 +70,17 @@ function DropdownInput({selectedItem, itemToString, ...props}) {
           htmlId="permissions"
           name="pemissions"
           type="text"
-          // value={props.inputValue}
+          value={props.inputValue}
           onChange={({target: {value}}) => {setValue(value)}}
           onFocus={()=>{setFocus(true); setValue('')}}
           onBlur={()=> { value && value.length > 0 ? setFocus(true) : setFocus(false)}}
-          // {...props}
+          {...props}
         />
         {<span className={classNames(classes.dropdownInput_children, focus ? classes.dropDownInput_background : classes.dropdownInput_display)} >
-          {selectedItem ? itemToString(selectedItem) : ''}
+          {selectedItem  && props.inputValue !== itemToString(selectedItem)? itemToString(selectedItem) : ''}
         </span>}
       </div>
+      {props.inputValue == selectedItem}
     </>
   )
 }
@@ -80,7 +88,15 @@ function DropdownInput({selectedItem, itemToString, ...props}) {
 const defaultWidth = 400;
 
 function Dropdown({options, ...props}) {
+  const classes = useStyles();
   const [secondary, setSecondary] = React.useState(false);
+
+  const onDelete = (item) => {
+    if(props.onDelete) {
+      console.log('ondelete', item)
+      props.onDelete(item)
+    }
+  }
   return (
     <div>
       <Downshift
@@ -102,15 +118,15 @@ function Dropdown({options, ...props}) {
         <div>
           <div style={{position: 'relative', height: '70px'}}>
             <div style={{float: 'left', width: defaultWidth}}>
-            <DropdownInput selectedItem={selectedItem} itemToString={item => item ? item.description : ''} 
+            <DropdownInput inputValue={inputValue} selectedItem={selectedItem} itemToString={item => item ? item.description : ''} 
             {...getInputProps({
               placeholder: 'type something'
             })}
             />
             </div>
            
-            <div onClick={()=>{toggleMenu()}}>
-              <KeyboardArrowDownIcon />
+            <div className={classes.dropdown_Button}>
+              <KeyboardArrowDownIcon onClick={()=>{toggleMenu()}}/>
             </div>
            
           </div>
@@ -132,7 +148,7 @@ function Dropdown({options, ...props}) {
                       // secondary={secondary ? 'Secondary text' : null}
                     />
                     <ListItemSecondaryAction>
-                      <IconButton edge="end" aria-label="delete">
+                      <IconButton edge="end" aria-label="delete" onClick={()=> {onDelete(item.description)}}>
                         <DeleteIcon />
                       </IconButton>
                     </ListItemSecondaryAction>

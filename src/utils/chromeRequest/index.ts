@@ -2,7 +2,8 @@ export function updateChromeStorageApi(key: string, value: any, callback) {
   chrome.storage.sync.get(key, function(result) {
     let storageBlob = result;
     if(!result[key]) {
-      return callback({error: `${value} does not exist`});
+      const strVal = typeof value === 'object' ? JSON.stringify(value) : value;
+      return callback({error: `${strVal} does not exist`});
     } else {
       storageBlob[key] = value; //TODO: add feature to check diff and only add / remove new item
     }
@@ -28,6 +29,7 @@ export function getChromeStorageApi(key: string = null, callback: Function | nul
   chrome.storage.sync.get(key, function(object) {
     console.log(object)
     if(callback) {
+      console.log('callback ', object)
       return callback(object);
     }
   })
@@ -40,17 +42,20 @@ export function getPermission({permissions = ['tabs'], origins}) {
       origins
   }, function(granted) {
       if (granted) {
-          return resolve({permissions, origins});
-      } else {
-        return reject(granted);
+        return resolve({permissions, origins});
+      } else { // TODO: add validators to update reject message to include edge case where user forgot to add "/" afater .com or auto add it yourself
+        return reject(`Something went wrong with updating chrome permissions`);
       }
   })
-  }) 
+  })
 }
 
-export function removePermissions(permissions, callback) {
+export function removePermissions(permissions, callback = null) {
+  console.log(permissions)
   chrome.permissions.remove(permissions, function(result) {
-    return callback(result)
+    if (callback) {
+      return callback(result)
+    }
   })
 }
 
@@ -67,3 +72,18 @@ export function checkPermissions(urls: string[], cb: Function | null) {
     return cb(granted)
   } )
 }
+
+export const compareUrlHostName = (url1, url2) => {
+  const u1 = new URL(url1);
+  const u2 = new URL(url2);
+  return u1.host === u2.host;
+}
+
+export const checkUrlsFor = (arr, referenceElement) => {
+  for(const el of arr) {
+    if(compareUrlHostName(el, referenceElement)) {
+      return true;
+    }
+  }
+  return false;
+} 
