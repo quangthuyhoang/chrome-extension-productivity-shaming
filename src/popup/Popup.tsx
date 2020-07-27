@@ -3,8 +3,7 @@ import "./Popup.scss";
 import List from './components/List';
 import BaseInput from "./components/BaseInput";
 import classNames from 'classnames';
-
-const defaultOptions = [ {value: 'aq', label: '0', checked: false}, {label: '1', value: 'aq', checked: false}, {label: '2', value: 'aq', checked: false}, {label: '3', value: 'aq', checked: false}];
+import { getChromeStorageApi, addChromeStorageApi } from './../utils/chromeRequest/index';
 
 type TOption ={
   label: string,
@@ -17,28 +16,51 @@ type TOptions = TOption[] | undefined;
 export default function Popup(any) {
 
   const [ value, setValue ] = useState<string>('');
-  const [ options, setOptions ] = useState<TOptions>(defaultOptions);
+  const [ options, setOptions ] = useState<TOptions>([]);
 
   useEffect(() => {
     // Example of how to send a message to eventPage.ts.
-    chrome.runtime.sendMessage({ popupMounted: true });
-    var a;
-    // TODO: add in
-    chrome.runtime.sendMessage({ urls: ['www.google.com', 'abc.com', 'd']})
+    // chrome.runtime.sendMessage({ popupMounted: true });
+
+    getChromeStorageApi('todos', (results) => {
+      const initializedTodos = results['todos'] ? results['todos'] : options;
+      setOptions(initializedTodos);
+    })
   }, []);
 
+  const onChangeHandler = ({ target: {value}}) => {
+    setValue(value)
+  }
+
+  const onEnterPress = ({which, keyCode, key}) => {
+    let keyNumber = which ? which : keyCode;
+    if(keyNumber === 13 || key === "Enter") {
+      addItem(value);
+    }
+  }
+
   const addItem = (value: string) => {
-    setOptions((prevOptions: TOptions) => {
-      let label = Number(prevOptions[String(prevOptions.length - 1)].label) + 1;
-      const item: TOption = { label: label.toString() , value };
-      return [...prevOptions, item];
-    })
+    if (value && value.length > 0) {
+      setOptions((prevOptions: TOptions) => {
+        let label = Number(prevOptions[String(prevOptions.length - 1)].label) + 1;
+        const item: TOption = { label: label.toString() , value };
+      
+        chrome.storage.sync.set({'todos': [...prevOptions, item]}, () => {
+          console.log('todos added: ', [...prevOptions, item])
+        })
+        return [...prevOptions, item];
+      })
+      setValue('');
+    }
   };
 
   const removeItem = (label: string) => {
     setOptions(prevOptions => {
       const newOptions = prevOptions
       .filter(option => label !== option.label);
+      chrome.storage.sync.set({'todos': newOptions}, () => {
+        console.log('todos added: ',newOptions)
+      })
       return newOptions;
     })
   }
@@ -47,17 +69,28 @@ export default function Popup(any) {
     chrome.runtime.sendMessage({ urls: [url]});
   }
 
-  // TODO: add edit popup container to edit todo items
+  const getToDoList = () => {
+    getChromeStorageApi('todos', (results) => {
+      console.log('got the results', results)
+    })
+  }
 
+
+  // TODO: add edit popup container to edit todo items
+// store todo items somewhere
   return (<div className="popupContainer">
+    {/* TODO: Add BIG Be Productive Mode / Enable URL monitoring Button */}
+    <button onClick={getToDoList}>PUsh to Test</button>
     <div className="horizontalCenter">
     <BaseInput 
         
         htmlId="TODO-INPUT"
         name="TODO-INPUT"
         label="Add your todo!"
-        onChange={({target: {value}})=> setValue(value)}
+        onChange={onChangeHandler}
+        onKeyDown={onEnterPress}
         placeholder="placeholder"
+        value={value}
       />
       <button onClick={()=> {addItem(value)}}>+</button>
       <button onClick={()=> {updateUrls()}}>Send URL</button>

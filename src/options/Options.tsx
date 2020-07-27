@@ -7,21 +7,31 @@ import SaveIcon from '@material-ui/icons/Save';
 import Container from '@material-ui/core/Container';
 import { withStyles } from '@material-ui/core/styles';
 import Dropdown from './components/Dropdown/Dropdown';
+import Grid from '@material-ui/core/Grid';
+import Header from './components/Header';
 import { getPermission, 
   removePermissions, 
   updateChromeStorageApi, 
   checkPermissions, 
-  checkUrlsFor } from './../utils/chromeRequest/index';
+  checkUrlsFor, 
+  getChromeStorageApi } from './../utils/chromeRequest/index';
+import { Toolbar } from "material-ui";
 
-const bu = ["https://www.icefilms-info.com/*", "https://www.reddit.com/*", "https://www.youtube.com/*"]
 
 const styles = theme => ({
   iconSmall: {
     fontSize: 20,
   },
-})
+  gridRow: {
+    margin: '25px 25px 0px 25px'
+  },
+});
+
+
+
 
 function Options({classes, ...props}) {
+ 
   const [ urlInput, setUrlInput ] = useState<string>('');
   const [ saveStatus, setSaveStatus ] = useState<boolean>(false);
   const [ error , setError ] = useState<boolean>(false);
@@ -69,24 +79,14 @@ function Options({classes, ...props}) {
             })
        
             chrome.runtime.sendMessage({permission: "granted"}) // execute script for url monitoring with updated permissions
-            // updateChromeStorageApi('permissionOption',permissionOption, function(results) {
-            // console.log('results', results)
-            //   if(results.error) {
-            //     console.error(results.error) 
-            //     setSaveStatus(false);
-            //     setMessage(results.error)
-            //     setError(true);
-            //   } else {
-                // setError(false);
-                // setMessage('saved');
-                // setSaveStatus(true);
-            //   }
-              
-            // })
-            
           }
         })
-        .catch(err => { console.error(`permissions denied:  ${err}`); setSaveStatus(false); setMessage(`permissions denied`); setError(true); })
+        .catch(err => { 
+          console.error(`permissions denied:  ${err}`); 
+          setSaveStatus(false); 
+          setMessage(`permissions denied`); 
+          setError(true); 
+        })
       }
       
     })
@@ -98,7 +98,6 @@ function Options({classes, ...props}) {
       let query = results ? results['origins']['origins'] : null;
       
       checkPermissions(['all'], function(granted) {
-        console.log('granted', granted)
         if (granted) {
           chrome.runtime.sendMessage({permission: "granted"});
       } else {
@@ -111,7 +110,6 @@ function Options({classes, ...props}) {
   const handleRemoveOption = (item) => {
 
     removePermissions({origins: [item]}, (results) => {
-      console.log('results', results)
       if(results) {
         checkPermissions(['all'], (permissions) => {
           setOptions(permissions['origins'])
@@ -121,21 +119,29 @@ function Options({classes, ...props}) {
   }
   return (
     <div>
-      <Container maxWidth="sm">
-        <form>
-          <Label htmlFor="options" label="origins option"/>
-        
-          <Dropdown options={options} onDelete={handleRemoveOption}/>
-        </form>
-        <form>
+       
+      <Container
+        maxWidth="sm" 
+        style={{
+          paddingLeft: '0', 
+          paddingRight: '0', 
+          paddingBottom: '25px', 
+          boxShadow: '0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23)', 
+          marginTop: '25px'
+          }}
+      >
+      <Header />
+        <div style={{paddingLeft: '24', paddingRight: '24'}}> 
+        <Grid item xs={12} className={classes.gridRow}>
           <BaseInput 
             htmlId="urlinput" 
             name="urlinput" 
-            label="Add URL" 
+            label="Add distracting website you want to avoid to improve productivity" 
             onChange={handleChange}
             success={saveStatus}
             message={message}
             error={error}
+            placeholder="ex: https://www.reddit.com/"
           />
           <Button 
             variant="contained" 
@@ -146,40 +152,20 @@ function Options({classes, ...props}) {
             <SaveIcon className={classNames(classes.leftIcon, classes.iconSmall)} />
             Save
           </Button>
-        </form>
+        </Grid>
+          
+        <Grid item xs={12} className={classes.gridRow}>
+          <Dropdown 
+            width={550} 
+            options={options} 
+            onDelete={handleRemoveOption} 
+            label="View and edit extension permission"
+          />
+        </Grid>
+      </div>
       </Container>
-
-      
-        Test
-        <Button onClick={()=>{enableUrlMonitoringPermissions()}}>Turn on URL monitoring</Button>
-        <Button onClick={()=>{removePermissions({origins: ["https://www.reddit.com/*"]}, (results) => console.log(results))}}>Remove permissions</Button>
-        <Button onClick={()=>{getChromeStorageApi('origins', null)}}>Get Storage options</Button>
-        <Button onClick={()=>{checkPermissions(['all'], (res) => console.log(res))}}>Get All Permissions options</Button>
        </div>
   )
-}
-
-export function addChromeStorageApi(key: string, value: any, callback) {
-  chrome.storage.sync.get(key, function(result) {
-    let storageBlob = result;
-    if(!result[key]) {
-      storageBlob[key] = value;
-    } else {
-      storageBlob[key] = [...result[key], value];
-    }
-
-    chrome.storage.sync.set(storageBlob, callback(storageBlob))
-  })
-}
-
-export function getChromeStorageApi(key: string = null, callback: Function | null  = null) { // null gets the entire object
-  chrome.storage.sync.get(key, function(object) {
-    console.log(object)
-    if(callback) {
-      console.log('callback ', object)
-      return callback(object);
-    }
-  })
 }
 
 export default withStyles(styles)(Options);

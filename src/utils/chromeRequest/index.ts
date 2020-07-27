@@ -13,20 +13,25 @@ export function updateChromeStorageApi(key: string, value: any, callback) {
 }
 
 export function addChromeStorageApi(key: string, value: any, callback) {
-  chrome.storage.sync.get(key, function(result) {
-    let storageBlob = result;
-    if(!result[key]) {
-      storageBlob[key] = value;
-    } else {
-      storageBlob[key] = [...result[key], value];
-    }
-
-    chrome.storage.sync.set(storageBlob, callback(storageBlob))
-  })
+  // const sKey = key
+  if(!key || key == null) {
+    return callback({error: `key: ${key} is incorrect or not supplied`})
+  } else {
+    chrome.storage.sync.get(key, function(result) {
+      let storageBlob = result;
+      if(!result[key]) {
+        storageBlob[key] = value;
+      } else {
+        storageBlob[key] = [...result[key], value];
+      }
+  
+      // chrome.storage.sync.set({`${key}`: storageBlob[key]}, callback(storageBlob))
+    })
+  }
 }
 
 export function getChromeStorageApi(key: string = null, callback: Function | null  = null) { // null gets the entire object
-  chrome.storage.sync.get(key, function(object) {
+  chrome.storage.sync.get([key], function(object) {
     console.log(object)
     if(callback) {
       console.log('callback ', object)
