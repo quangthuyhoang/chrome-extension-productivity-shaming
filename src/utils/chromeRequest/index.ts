@@ -30,8 +30,11 @@ export function addChromeStorageApi(key: string, value: any, callback) {
   }
 }
 
-export function getChromeStorageApi(key: string = null, callback: Function | null  = null) { // null gets the entire object
-  chrome.storage.sync.get([key], function(object) {
+type TKey = string[] | string;
+
+export function getChromeStorageApi(key: TKey = null, callback: Function | null  = null) { // null gets the entire object
+  const sKey =  typeof key === 'string' ? [key] : key;
+  chrome.storage.sync.get(sKey, function(object) {
     console.log(object)
     if(callback) {
       console.log('callback ', object)

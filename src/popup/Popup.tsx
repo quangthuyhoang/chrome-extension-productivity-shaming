@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import "./Popup.scss";
 import List from './components/List';
 import BaseInput from "./components/BaseInput";
+import WbIncandescentTwoToneIcon from '@material-ui/icons/WbIncandescentTwoTone';
+import WbIncandescentIcon from '@material-ui/icons/WbIncandescent';
 import classNames from 'classnames';
 import { getChromeStorageApi, addChromeStorageApi } from './../utils/chromeRequest/index';
 
@@ -17,13 +19,19 @@ export default function Popup(any) {
 
   const [ value, setValue ] = useState<string>('');
   const [ options, setOptions ] = useState<TOptions>([]);
+  const [ monitoring, setMonitoring ] = useState<boolean>(false);
 
   useEffect(() => {
     // Example of how to send a message to eventPage.ts.
     // chrome.runtime.sendMessage({ popupMounted: true });
 
-    getChromeStorageApi('todos', (results) => {
-      const initializedTodos = results['todos'] ? results['todos'] : options;
+    getChromeStorageApi(['todos', 'urlMonitoring'], (results) => {
+      const { todos, urlMonitoring} = results;
+  
+      const initializedTodos = todos ? todos : options;
+      const initializedMonitoring = urlMonitoring ? urlMonitoring : false;
+
+      setMonitoring(initializedMonitoring);
       setOptions(initializedTodos);
     })
   }, []);
@@ -65,22 +73,37 @@ export default function Popup(any) {
     })
   }
 
-  const updateUrls = (url: string = 'https://www.youtube.com') => {
-    chrome.runtime.sendMessage({ urls: [url]});
-  }
-
   const getToDoList = () => {
-    getChromeStorageApi('todos', (results) => {
+    getChromeStorageApi(['urlMonitoring', 'todos'], (results) => {
       console.log('got the results', results)
     })
   }
-
-
+  
+  const toggleUrlMontoring = () => {
+    setMonitoring(prevState => {
+      let newState = !prevState;
+      chrome.storage.sync.set({'urlMonitoring': newState}, ()=> {
+        console.log('url')
+        chrome.runtime.sendMessage({urlMonitoring: newState});
+        
+      })
+      return newState;
+    })
+  }
   // TODO: add edit popup container to edit todo items
 // store todo items somewhere
   return (<div className="popupContainer">
     {/* TODO: Add BIG Be Productive Mode / Enable URL monitoring Button */}
     <button onClick={getToDoList}>PUsh to Test</button>
+    <div className="horizontalCenter">
+      <p>Enable URL Monitoring</p>
+      <p className="hoverpointer"
+      data-tip="Enable / Disable URL monitoring to improve productivity"
+      onClick={toggleUrlMontoring}
+      >{( monitoring ? <WbIncandescentIcon color="primary" style={{fontSize: '50px', color: 'yellow'}}/> :
+      <WbIncandescentIcon color="disabled" style={{fontSize: '50px'}}/>)}</p>
+      
+    </div>
     <div className="horizontalCenter">
     <BaseInput 
         
@@ -93,7 +116,6 @@ export default function Popup(any) {
         value={value}
       />
       <button onClick={()=> {addItem(value)}}>+</button>
-      <button onClick={()=> {updateUrls()}}>Send URL</button>
     </div>
     <div>
       <List options={options} removeItem={removeItem} />

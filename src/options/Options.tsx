@@ -100,6 +100,7 @@ function Options({classes, ...props}) {
       checkPermissions(['all'], function(granted) {
         if (granted) {
           chrome.runtime.sendMessage({permission: "granted"});
+          // chrome.runtime.sendMessage({urlMonitoring: true})
       } else {
           alert("denied " + granted);
       }
@@ -116,6 +117,10 @@ function Options({classes, ...props}) {
         })
       }
     })
+  }
+
+  const disableM = ()=> {
+    chrome.runtime.sendMessage({permission: 'disable'});
   }
   return (
     <div>
@@ -152,6 +157,7 @@ function Options({classes, ...props}) {
             <SaveIcon className={classNames(classes.leftIcon, classes.iconSmall)} />
             Save
           </Button>
+          <button onClick={disableM}>Disable Monitoring</button>
         </Grid>
           
         <Grid item xs={12} className={classes.gridRow}>
