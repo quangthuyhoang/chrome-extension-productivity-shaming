@@ -2,10 +2,24 @@ import React, { useState, useEffect } from "react";
 import "./Popup.scss";
 import List from './components/List';
 import BaseInput from "./components/BaseInput";
-import WbIncandescentTwoToneIcon from '@material-ui/icons/WbIncandescentTwoTone';
 import WbIncandescentIcon from '@material-ui/icons/WbIncandescent';
+import PostAddIcon from '@material-ui/icons/PostAdd';
 import classNames from 'classnames';
-import { getChromeStorageApi, addChromeStorageApi } from './../utils/chromeRequest/index';
+import { getChromeStorageApi, addChromeStorageApi, checkPermissions } from './../utils/chromeRequest/index';
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles({
+  BaseInput_autoWidth: {
+    // 'input': {
+      width: '430px',
+    // }
+  },
+  addButton: {
+    right: '35px',
+    position: 'absolute',
+    top: '22px',
+  }
+})
 
 type TOption ={
   label: string,
@@ -16,6 +30,8 @@ type TOption ={
 type TOptions = TOption[] | undefined;
 
 export default function Popup(any) {
+
+  const classes = useStyles();
 
   const [ value, setValue ] = useState<string>('');
   const [ options, setOptions ] = useState<TOptions>([]);
@@ -47,10 +63,15 @@ export default function Popup(any) {
     }
   }
 
-  const addItem = (value: string) => {
+  const addItem = (value: string) => { // figure out why
     if (value && value.length > 0) {
       setOptions((prevOptions: TOptions) => {
-        let label = Number(prevOptions[String(prevOptions.length - 1)].label) + 1;
+        const lIndex = prevOptions.length === 0 ? 1 : prevOptions.length
+        let label = 0
+        if(!prevOptions || prevOptions.length != 0 ) {
+          label = Number(prevOptions[String(prevOptions.length - 1)].label) + 1;
+        }
+        
         const item: TOption = { label: label.toString() , value };
       
         chrome.storage.sync.set({'todos': [...prevOptions, item]}, () => {
@@ -74,6 +95,10 @@ export default function Popup(any) {
   }
 
   const getToDoList = () => {
+    chrome.runtime.sendMessage({modal: true});
+    checkPermissions(['all'], function(granted) {
+      console.log('check', granted)
+    })
     getChromeStorageApi(['urlMonitoring', 'todos'], (results) => {
       console.log('got the results', results)
     })
@@ -90,23 +115,48 @@ export default function Popup(any) {
       return newState;
     })
   }
+
+  
   // TODO: add edit popup container to edit todo items
 // store todo items somewhere
   return (<div className="popupContainer">
     {/* TODO: Add BIG Be Productive Mode / Enable URL monitoring Button */}
+    <div>
+
+    </div>
     <button onClick={getToDoList}>PUsh to Test</button>
     <div className="horizontalCenter">
-      <p>Enable URL Monitoring</p>
+
       <p className="hoverpointer"
       data-tip="Enable / Disable URL monitoring to improve productivity"
       onClick={toggleUrlMontoring}
-      >{( monitoring ? <WbIncandescentIcon color="primary" style={{fontSize: '50px', color: 'yellow'}}/> :
-      <WbIncandescentIcon color="disabled" style={{fontSize: '50px'}}/>)}</p>
+      style={{width: '55px', margin: '0 auto'}}
+      >{( 
+        monitoring ? 
+      <WbIncandescentIcon color="primary" 
+        style={{fontSize: '50px', color: 'yellow'}}
+      /> :
+      <WbIncandescentIcon color="disabled" 
+        style={{fontSize: '50px'}}/>
+        )}
+      </p>
       
     </div>
-    <div className="horizontalCenter">
+    <div 
+    // className="horizontalCenter"
+    style={{height: '70px',
+      position: 'relative',
+      paddingLeft: '40px',
+      paddingRight: '35px',
+      width: 'auto',
+      overflow: 'hidden'
+    }}
+    >
+      
+   
     <BaseInput 
-        
+    style={{width: '430px'}}
+        className={classes.BaseInput_autoWidth}
         htmlId="TODO-INPUT"
         name="TODO-INPUT"
         label="Add your todo!"
@@ -115,7 +165,17 @@ export default function Popup(any) {
         placeholder="placeholder"
         value={value}
       />
-      <button onClick={()=> {addItem(value)}}>+</button>
+      <span
+      //  onClick={()=> {addItem(value)}}
+      style={{
+        // height: '50px', float: 'right', 
+      right: '35px', position: 'absolute', top: '27px'}}>
+        <button style={{height: '30px'}} onClick={()=> {addItem(value)}}>
+          {/* <PostAddIcon color="primary" style={{fontSize: '20px'}}/> */}
+          +
+        </button>
+      </span>
+     
     </div>
     <div>
       <List options={options} removeItem={removeItem} />

@@ -1,4 +1,9 @@
 export function updateChromeStorageApi(key: string, value: any, callback) {
+  return new Promise((resolve) => {
+    chrome.storage.sync.set({[key]: value}, ()=> {
+      resolve({[key]: value})
+    })
+  })
   chrome.storage.sync.get(key, function(result) {
     let storageBlob = result;
     if(!result[key]) {
@@ -8,7 +13,7 @@ export function updateChromeStorageApi(key: string, value: any, callback) {
       storageBlob[key] = value; //TODO: add feature to check diff and only add / remove new item
     }
 
-    return chrome.storage.sync.set(storageBlob, callback(storageBlob))
+    return 
   })
 }
 
@@ -35,9 +40,7 @@ type TKey = string[] | string;
 export function getChromeStorageApi(key: TKey = null, callback: Function | null  = null) { // null gets the entire object
   const sKey =  typeof key === 'string' ? [key] : key;
   chrome.storage.sync.get(sKey, function(object) {
-    console.log(object)
     if(callback) {
-      console.log('callback ', object)
       return callback(object);
     }
   })
@@ -81,6 +84,7 @@ export function checkPermissions(urls: string[], cb: Function | null) {
   } )
 }
 
+
 export const compareUrlHostName = (url1, url2) => {
   const u1 = new URL(url1);
   const u2 = new URL(url2);
@@ -94,4 +98,19 @@ export const checkUrlsFor = (arr, referenceElement) => {
     }
   }
   return false;
-} 
+}
+
+// function findHighestZIndex(elem) // TODO: make function to get highest zIndex to cover everything
+// {
+//   var elems = document.getElementsByTagName(elem);
+//   var highest = 0;
+//   for (var i = 0; i < elems.length; i++)
+//   {
+//     var zindex = document.defaultView.getComputedStyle(elems[i],null).getPropertyValue("z-index");
+//     if ((zindex > highest) && (zindex != 'auto'))
+//     {
+//       highest = zindex;
+//     }
+//   }
+//   return highest;
+// }
