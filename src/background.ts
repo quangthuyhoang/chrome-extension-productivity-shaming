@@ -4,13 +4,16 @@ chrome.storage.sync.get(['urlMonitoring'], function(object) {
   
   if(object && object['urlMonitoring']) {
     chrome.webNavigation.onBeforeNavigate.addListener(enableUrlMonitoring)
-    // console.log('callback ', object)
+    console.log('callback ', object)
     // return callback(object);
   }
 })
 
+chrome.permissions.getAll(function(results) { console.log('all permissions', results)})
+
 chrome.runtime.onMessage.addListener(function(request) {
   // alert('request ' + request.type)
+  console.log('request', request)
   if (request.type === 'request_password') {
       chrome.tabs.create({
           url: chrome.extension.getURL('dialog.html'),
@@ -31,14 +34,18 @@ chrome.runtime.onMessage.addListener(function(request) {
   }
 
   if (request.urlMonitoring) {
+    console.log('enable url monitoring')
     chrome.webNavigation.onBeforeNavigate.addListener(enableUrlMonitoring)
   }
 
   if (request.permission == "disable") {
+    console.log('disable')
     chrome.webNavigation.onBeforeNavigate.removeListener(enableUrlMonitoring)
   }
 
   if (request.permission == "granted") {
+    console.log('enable url monitoring')
+
     chrome.webNavigation.onBeforeNavigate.addListener(enableUrlMonitoring)
   }
 });
@@ -63,7 +70,7 @@ if(chrome.runtime.lastError) {
 
 function enableUrlMonitoring({url, ...rest}) {
   checkPermissions(url, function(results) {
-    console.log("resulsts", results)
+    console.log("resulsts", results, url)
     if(results) { // think of a better way to reduce multiple calls
       if(count < 1) {alert('details ' + url + " count " + count)}; // Add pop box instead of alert
       count++;
