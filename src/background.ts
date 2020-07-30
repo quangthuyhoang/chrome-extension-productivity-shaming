@@ -1,5 +1,16 @@
 import { getChromeStorageApi, updateChromeStorageApi} from './utils/chromeRequest';
 var count = 0;
+
+// check current tabid for url change - done
+
+  // saves current tabid in state in case user moves to different tab? 
+
+// if matches to filter list execute scripts - done
+
+// scripts check if the current tabid finishes loading,
+
+// one current tab finishes loading inject modal scripts - done
+
 // TODO: add feature to persist url monitoring setting when closing or opening browser
 chrome.storage.sync.get(['urlMonitoring'], function(object) {
   
@@ -34,14 +45,15 @@ chrome.runtime.onMessage.addListener(function(request) {
   
   if (!request.urlMonitoring) {
     
-    chrome.webNavigation.onBeforeNavigate.removeListener(enableUrlMonitoring)
+    // chrome.webNavigation.onBeforeNavigate.removeListener(enableUrlMonitoring)
     // chrome.webNavigation.onDOMContentLoaded.removeListener(enableUrlMonitoring)
+    chrome.webNavigation.onCompleted.removeListener(enableUrlMonitoring)
   }
 
   if (request.urlMonitoring) {
-    chrome.webNavigation.onBeforeNavigate.addListener(enableUrlMonitoring)
+    // chrome.webNavigation.onBeforeNavigate.addListener(enableUrlMonitoring)
     // chrome.webNavigation.onDOMContentLoaded.addListener(enableUrlMonitoring)
-    // chrome.webNavigation.onCompleted.addListener(enableUrlMonitoring)
+    chrome.webNavigation.onCompleted.addListener(enableUrlMonitoring)
   }
 
   // if (request.permission == "disable") {
@@ -71,11 +83,42 @@ if(chrome.runtime.lastError) {
   console.log('some runtime errror: ' + chrome.runtime.lastError.message);
 };
 
+function tabStatus(){
+  // return new Promise((resolve, reject) => {
+    chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+      if (changeInfo?.status === "complete") {
+        console.log('inject modal scripts', tabId, changeInfo, tab)
+        chrome.tabs.executeScript({
+          // code: "alert('hey')" //'document.body.style.backgroundColor="orange"'
+          file: 'js/modal.js'
+        }, function(results) {
+          console.log('execute scripts for modal', tab)
+        });
+      }
+    
+    })
+  // })
+}
+
+function tabChangeHandler(tab) {
+  console.log('tab change handler', tab)
+  if (tab.changeInfo.status === "complete") {
+    console.log('inject modal scripts')
+    chrome.tabs.executeScript({
+      // code: "alert('hey')" //'document.body.style.backgroundColor="orange"'
+      file: 'js/modal.js'
+    }, function(results) {
+      console.log('execute scripts for modal', tab)
+    });
+  }
+}
+
 function enableUrlMonitoring({url, ...rest}) {
   checkPermissions(url, function(results) {
     console.log("resulsts", results, url)
     if(results) { // think of a better way to reduce multiple calls
       if(count < 1) { // why doesn't it thing pop up
+        tabStatus()
         // chrome.tabs.executeScript({
         //   // code: "alert('hey')" //'document.body.style.backgroundColor="orange"'
         //   file: 'js/modal.js'
@@ -85,7 +128,7 @@ function enableUrlMonitoring({url, ...rest}) {
         // injectModalToCurrentWindow();
         // getAllWindows().then(logger).catch(logger)
         // createWindow().then(res => console.log(res)).catch(err => console.error(err));
-        alert('shame')
+        // alert('shame')
       }; // Add pop box instead of alert
       count++;
       setTimeout(function(){
@@ -114,7 +157,7 @@ function getAllWindows(){
 function createWindow() {
   return new Promise((resolve, reject) => {
     chrome.windows.create({
-      tabId: 9999,
+    
       url: chrome.extension.getURL('dialog.html'),
       type: 'popup',
       focused: true,

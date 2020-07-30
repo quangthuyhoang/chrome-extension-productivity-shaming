@@ -22,7 +22,7 @@
     "optional_permissions": ["tabs", "https://*/*"],
     "options_page": "option.html",
     "permissions": [
-        
+        "tabs",
         "webNavigation",
         "activeTab",
         "storage"
