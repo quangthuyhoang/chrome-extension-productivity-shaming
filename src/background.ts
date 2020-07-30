@@ -22,34 +22,24 @@ chrome.storage.sync.get(['urlMonitoring'], function(object) {
 chrome.permissions.getAll(function(results) { console.log('all permissions', results)})
 
 chrome.runtime.onMessage.addListener(function(request) {
-  if (request.modal){
-    chrome.tabs.executeScript({
-      // code: 'document.body.style.backgroundColor="orange"'
-      file: 'js/modal.js'
-    });
-  }
+  // if (request.modal){
+  //   chrome.tabs.executeScript({
+  //     // code: 'document.body.style.backgroundColor="orange"'
+  //     file: 'js/modal.js'
+  //   });
+  // }
 
   // console.log('request ' + request.type)
-  if (request.type === 'request_password') {
-      chrome.tabs.create({
-          url: chrome.extension.getURL('dialog.html'),
-          active: false
-      }, function(tab) {
-          // After the tab has been created, open a window to inject the tab
-          chrome.windows.create({
-              tabId: tab.id,
-              type: 'popup',
-              focused: true
-              // incognito, top, left, ...
-          });
-      });
-  }
+
   
   if (!request.urlMonitoring) {
     
     // chrome.webNavigation.onBeforeNavigate.removeListener(enableUrlMonitoring)
     // chrome.webNavigation.onDOMContentLoaded.removeListener(enableUrlMonitoring)
+    console.log('remove listeners')
     chrome.webNavigation.onCompleted.removeListener(enableUrlMonitoring)
+    // console.log(chrome.tabs.onUpdated)
+    chrome.tabs.onUpdated.removeListener(modalScriptInjection);
   }
 
   if (request.urlMonitoring) {
@@ -69,34 +59,38 @@ if(chrome.runtime.lastError) {
   console.log('some runtime errror: ' + chrome.runtime.lastError.message);
 };
 
-function tabStatus(){
-  // return new Promise((resolve, reject) => {
-    chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-      if (changeInfo?.status === "complete") {
-        console.log('inject modal scripts', tabId, changeInfo, tab)
-        chrome.tabs.executeScript({
-          // code: "alert('hey')" //'document.body.style.backgroundColor="orange"'
-          file: 'js/modal.js'
-        }, function(results) {
-          console.log('execute scripts for modal', tab)
-        });
-      }
-    
-    })
-  // })
-}
-
-function tabChangeHandler(tab) {
-  console.log('tab change handler', tab)
-  if (tab.changeInfo.status === "complete") {
+var modalScriptInjection = function(tab, changeInfo) {
+  console.log('modal inejction tabs', tab)
+  if (changeInfo?.status === "complete") {
     console.log('inject modal scripts')
     chrome.tabs.executeScript({
-      // code: "alert('hey')" //'document.body.style.backgroundColor="orange"'
       file: 'js/modal.js'
     }, function(results) {
-      console.log('execute scripts for modal', tab)
+      console.log('execute scripts for modal')
     });
   }
+}
+
+function tabStatus(){
+  // return new Promise((resolve, reject) => {
+    chrome.tabs.onUpdated.addListener(modalScriptInjection)
+    // chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+      // modalScriptInjection({tabId, changeInfo, tab}, chrome)
+    //   modalScriptInjection({tabId, changeInfo, tab})
+    // });
+    // chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    //   if (changeInfo?.status === "complete") {
+    //     console.log('inject modal scripts', tabId, changeInfo, tab)
+    //     chrome.tabs.executeScript({
+    //       // code: "alert('hey')" //'document.body.style.backgroundColor="orange"'
+    //       file: 'js/modal.js'
+    //     }, function(results) {
+    //       console.log('execute scripts for modal', tab)
+    //     });
+    //   }
+    
+    // })
+  // })
 }
 
 function enableUrlMonitoring({url, ...rest}) {

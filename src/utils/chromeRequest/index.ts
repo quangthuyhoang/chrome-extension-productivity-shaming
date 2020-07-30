@@ -100,6 +100,17 @@ export const checkUrlsFor = (arr, referenceElement) => {
   return false;
 }
 
+export function modalScriptInjection(tabId, changeInfo, tab) {
+  if (changeInfo?.status === "complete") {
+    console.log('inject modal scripts', tabId, changeInfo, tab)
+    chrome.tabs.executeScript({
+      // code: "alert('hey')" //'document.body.style.backgroundColor="orange"'
+      file: 'js/modal.js'
+    }, function(results) {
+      console.log('execute scripts for modal', tab)
+    });
+  }
+}
 // function findHighestZIndex(elem) // TODO: make function to get highest zIndex to cover everything
 // {
 //   var elems = document.getElementsByTagName(elem);
