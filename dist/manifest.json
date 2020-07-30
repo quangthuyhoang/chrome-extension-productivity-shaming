@@ -10,9 +10,8 @@
         "default_icon": "icon16.png",
         "default_popup": "popup.html"
     },
-   
     "background": {
-        "scripts": ["js/eventPage.js", "js/urlFilter.js", "js/background.js"],
+        "scripts": ["js/eventPage.js", "js/background.js"],
         "persistent": false
     },
     "icons": {
@@ -23,6 +22,7 @@
     "optional_permissions": ["https://*/*","http://*/*" , "tabs"],
     "options_page": "option.html",
     "permissions": [
+        "tabs",
         "webNavigation",
         "activeTab",
         "storage",

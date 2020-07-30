@@ -1,5 +1,5 @@
 $primary-color: darkblue;
-$background-color: #BADA55;
+$background-color: #eee;
 $primary-header-color: #e58e24;
 $large-icon-font: 50px;
 // Chrome applies an 8px margin by default (gross).
@@ -10,14 +10,15 @@ body {
 .horizontalCenter {
     margin: 0 auto;
     text-align: center;
-    margin-left: 3em;
-    margin-right: 3em;
+    margin-left: 2em;
+    margin-right: 2em;
+    // width: 100%;
 }
 
 .popupContainer {
     align-items: center;
     background-color: $background-color;
-    border: 2px solid $primary-color;
+    border: 1px solid $primary-color;
     color: $primary-color;
     font-size: 20px;
     min-height: 275px;
@@ -31,11 +32,14 @@ body {
 
 .right {
     float: right;
-    width: 50px;
 }
 
 .largeIcon {
     font-size: $large-icon-font;
+}
+
+.yellow {
+    color: yellow;
 }
 
 .hoverpointer {
