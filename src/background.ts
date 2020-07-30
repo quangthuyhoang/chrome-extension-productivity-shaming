@@ -1,4 +1,4 @@
-import { getChromeStorageApi, updateChromeStorageApi} from './utils/chromeRequest';
+import { getChromeStorageApi, updateChromeStorageApi, checkPermissions} from './utils/chromeRequest';
 var count = 0;
 
 // check current tabid for url change - done
@@ -65,6 +65,7 @@ chrome.runtime.onMessage.addListener(function(request) {
   //   chrome.webNavigation.onBeforeNavigate.addListener(enableUrlMonitoring)
   // }
 });
+if(chrome.runtime.lastError) {
   console.log('some runtime errror: ' + chrome.runtime.lastError.message);
 };
 
@@ -99,7 +100,7 @@ function tabChangeHandler(tab) {
 }
 
 function enableUrlMonitoring({url, ...rest}) {
-  checkPermissions(url, function(results) {
+  checkPermissions([url], function(results) {
     console.log("resulsts", results, url)
     if(results) { // think of a better way to reduce multiple calls
       if(count < 1) { // why doesn't it thing pop up
