@@ -19,12 +19,13 @@
         "48": "icon48.png",
         "128": "icon128.png"
     },
-    "optional_permissions": ["tabs", "https://*/*"],
+    "optional_permissions": ["https://*/*","http://*/*" , "tabs"],
     "options_page": "option.html",
     "permissions": [
         "tabs",
         "webNavigation",
         "activeTab",
-        "storage"
+        "storage",
+        "tabs"
     ]
 }

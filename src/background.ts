@@ -19,6 +19,8 @@ chrome.storage.sync.get(['urlMonitoring'], function(object) {
   }
 })
 
+chrome.permissions.getAll(function(results) { console.log('all permissions', results)})
+
 chrome.runtime.onMessage.addListener(function(request) {
   if (request.modal){
     chrome.tabs.executeScript({
@@ -51,7 +53,6 @@ chrome.runtime.onMessage.addListener(function(request) {
   }
 
   if (request.urlMonitoring) {
-    // chrome.webNavigation.onBeforeNavigate.addListener(enableUrlMonitoring)
     // chrome.webNavigation.onDOMContentLoaded.addListener(enableUrlMonitoring)
     chrome.webNavigation.onCompleted.addListener(enableUrlMonitoring)
   }
@@ -64,22 +65,6 @@ chrome.runtime.onMessage.addListener(function(request) {
   //   chrome.webNavigation.onBeforeNavigate.addListener(enableUrlMonitoring)
   // }
 });
-
-function setPassword(password) {
-  // Do something, eg..:
-  console.log(password);
-};
-
-function checkPermissions(url, cb) {
-  chrome.permissions.contains({
-    permissions: ['tabs'],
-    origins: [url]
-  }, function(results) {
-    return cb(results)
-  } )
-}
-
-if(chrome.runtime.lastError) {
   console.log('some runtime errror: ' + chrome.runtime.lastError.message);
 };
 

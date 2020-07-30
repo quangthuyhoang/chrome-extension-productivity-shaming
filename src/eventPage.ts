@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // // Listen to messages sent from other parts of the extension.
+=======
+// Listen to messages sent from other parts of the extension.
+>>>>>>> master
 // chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 //     // TODO: Receive a list of urls from extenstion
 //     if (request.urls) {
@@ -19,9 +23,15 @@
 //     if (request.popupMounted) {
 //         console.log('eventPage notified that Popup.tsx has mounted.');
 //     }
+<<<<<<< HEAD
 
 //     return isResponseAsync;
 // });
 
 // // injectModalToCurrentWindow();
 
+=======
+
+//     return isResponseAsync;
+// });
+>>>>>>> master

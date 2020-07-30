@@ -95,9 +95,20 @@ export default function Popup(any) {
   }
 
   const getToDoList = () => {
+<<<<<<< HEAD
     chrome.runtime.sendMessage({modal: true});
     checkPermissions(['all'], function(granted) {
       console.log('check', granted)
+=======
+    chrome.permissions.contains({
+      permissions: ['tabs'],
+      origins: ['https://www.youtube.com/*']
+    }, function(results) {
+      console.log('permissions', results)
+    })
+    chrome.permissions.getAll(function(results) {
+      console.log(results)
+>>>>>>> master
     })
     getChromeStorageApi(['urlMonitoring', 'todos'], (results) => {
       console.log('got the results', results)
