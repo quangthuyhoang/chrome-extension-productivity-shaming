@@ -6,7 +6,7 @@ module.exports = {
     rootOptions: path.join(__dirname, "src/options/index.tsx"),
     dialog: path.join(__dirname, "src/dialog/index.tsx"),
     eventPage: path.join(__dirname, "src/eventPage.ts"),
-    modal: path.join(__dirname, "src/modal.ts"),
+    modal: path.join(__dirname, "src/modal/modal.tsx"),
     background: path.join(__dirname, "src/background.ts"),
     // "open-dialog": path.join(__dirname, "src/open-dialog.ts"),
     // options: path.join(__dirname, "src/options.js"),

@@ -8,6 +8,9 @@ function ListItem(props: any) {
   const handleRemove = (option) => {
     removeItem(option!.label)
   }
+  // const handleChange = ({target: {checked}}) => {
+  //   setChecked(checked)
+  // }
 // TODO: add material ui themes to make prettier and get icons
 // TODO: add edit button
   return (

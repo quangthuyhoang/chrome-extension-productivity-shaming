@@ -99,6 +99,7 @@ function enableUrlMonitoring({url, ...rest}) {
     if(results) { // think of a better way to reduce multiple calls
       if(count < 1) { // why doesn't it thing pop up
         tabStatus()
+        // createWindow()
         // chrome.tabs.executeScript({
         //   // code: "alert('hey')" //'document.body.style.backgroundColor="orange"'
         //   file: 'js/modal.js'
@@ -134,15 +135,17 @@ function getAllWindows(){
   })
 }
 
-function createWindow() {
+export function createWindow() {
+  const h = window.outerHeight;
+const w = window.outerWidth;
   return new Promise((resolve, reject) => {
     chrome.windows.create({
     
       url: chrome.extension.getURL('dialog.html'),
       type: 'popup',
       focused: true,
-      height: 300,
-      width: 300
+      height: 600,
+      width: 800
       // incognito, top, left, ...
     }, function(window) {
       if(window) {

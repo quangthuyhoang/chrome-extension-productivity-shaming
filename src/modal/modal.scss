@@ -1,0 +1,23 @@
+#shame-modal {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 9999;
+  height: 800px;
+  width: 1200px;
+  // background-color: yellow;
+  border: 1px solid grey;
+  opacity: 0.2;
+}
+
+.container {
+  // width: 30rem;
+  // height: 20rem;
+  box-shadow: 0 0 1rem 0 rgba(0, 0, 0, .2);   
+  border-radius: 5px;
+  position: relative;
+  z-index: 9999;
+  background: white;
+  overflow: hidden;
+  opacity: 0.95;
+}

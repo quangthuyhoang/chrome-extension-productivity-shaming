@@ -7,7 +7,8 @@ import PostAddIcon from '@material-ui/icons/PostAdd';
 import classNames from 'classnames';
 import { getChromeStorageApi, addChromeStorageApi, checkPermissions } from './../utils/chromeRequest/index';
 import { makeStyles } from '@material-ui/core/styles';
-
+import { createWindow } from './../background';
+import { TOption } from '../utils/types'
 const useStyles = makeStyles({
   BaseInput_autoWidth: {
     // 'input': {
@@ -21,11 +22,6 @@ const useStyles = makeStyles({
   }
 })
 
-type TOption ={
-  label: string,
-  value: string,
-  checked?: boolean,
-};
 
 type TOptions = TOption[] | undefined;
 
@@ -63,6 +59,17 @@ export default function Popup(any) {
     }
   }
 
+  const updateItem = (item: TOption) => {
+    // setOptions(prevOptions => {
+    //   const fIndex = prevOptions.findIndex(option => option.label === item.label);
+    //   if (fIndex !== -1) {
+    //     const left = prevOptions.map.slice(0, fIndex - 1);
+    //     const right = prevOptions.map.slice(fIndex, prevOptions.length);
+    //     return [...left,item,...prevOptions]
+    //   }
+    // })
+  }
+
   const addItem = (value: string) => { // figure out why
     if (value && value.length > 0) {
       setOptions((prevOptions: TOptions) => {
@@ -96,12 +103,13 @@ export default function Popup(any) {
 
   const getToDoList = () => {
     chrome.runtime.sendMessage({modal: true});
-    checkPermissions(['all'], function(granted) {
-      console.log('check', granted)
-    })
-    getChromeStorageApi(['urlMonitoring', 'todos'], (results) => {
-      console.log('got the results', results)
-    })
+    // createWindow();
+    // checkPermissions(['all'], function(granted) {
+    //   console.log('check', granted)
+    // })
+    // getChromeStorageApi(['urlMonitoring', 'todos'], (results) => {
+    //   console.log('got the results', results)
+    // })
   }
   
   const toggleUrlMontoring = () => {
