@@ -5,7 +5,7 @@ import BaseInput from "./components/BaseInput";
 import WbIncandescentIcon from '@material-ui/icons/WbIncandescent';
 import PostAddIcon from '@material-ui/icons/PostAdd';
 import classNames from 'classnames';
-import { getChromeStorageApi, addChromeStorageApi, checkPermissions } from './../utils/chromeRequest/index';
+import { getChromeStorageApi,updateChromeStorageApi, logger, addChromeStorageApi, checkPermissions } from './../utils/chromeRequest/index';
 import { makeStyles } from '@material-ui/core/styles';
 import { createWindow } from './../background';
 import { TOption } from '../utils/types'
@@ -60,14 +60,16 @@ export default function Popup(any) {
   }
 
   const updateItem = (item: TOption) => {
-    // setOptions(prevOptions => {
-    //   const fIndex = prevOptions.findIndex(option => option.label === item.label);
-    //   if (fIndex !== -1) {
-    //     const left = prevOptions.map.slice(0, fIndex - 1);
-    //     const right = prevOptions.map.slice(fIndex, prevOptions.length);
-    //     return [...left,item,...prevOptions]
-    //   }
-    // })
+    setOptions(prevOptions => {
+      
+       const newOptions = prevOptions
+       .map(option => option.label === item.label ? item : option);
+
+       updateChromeStorageApi('todos', newOptions, null)
+       .catch(err => console.error(err));
+
+       return newOptions;
+    })
   }
 
   const addItem = (value: string) => { // figure out why
@@ -107,9 +109,9 @@ export default function Popup(any) {
     // checkPermissions(['all'], function(granted) {
     //   console.log('check', granted)
     // })
-    // getChromeStorageApi(['urlMonitoring', 'todos'], (results) => {
-    //   console.log('got the results', results)
-    // })
+    getChromeStorageApi(['urlMonitoring', 'todos'], (results) => {
+      console.log('got the results', results)
+    })
   }
   
   const toggleUrlMontoring = () => {
@@ -186,7 +188,7 @@ export default function Popup(any) {
      
     </div>
     <div>
-      <List options={options} removeItem={removeItem} />
+      <List options={options} removeItem={removeItem} onUpdate={updateItem}/>
     </div>
     
   </div>);

@@ -111,6 +111,10 @@ export function modalScriptInjection(tabId, changeInfo, tab) {
     });
   }
 }
+
+export function logger(args) {
+  console.log(args)
+}
 // function findHighestZIndex(elem) // TODO: make function to get highest zIndex to cover everything
 // {
 //   var elems = document.getElementsByTagName(elem);
