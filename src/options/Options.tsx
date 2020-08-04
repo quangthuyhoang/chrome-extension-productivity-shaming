@@ -53,7 +53,8 @@ function Options({classes, ...props}) {
     setMessage('saved'); // TODO: refactor reset status to its own function later and refactor entire with it
   }
 // TODO: access the storage item to execute the option popup
-
+// BUGFIX NEEDED: when saving need url to be blocked, need to disable and enable in popup lightbulb to add listener. 
+// SOLLUTION: need to resend chrome message to update listener with updated permissions
   const handleSave = (key) => {
     checkPermissions(['all'], function({permissions, origins}) { 
       if(checkUrlsFor(origins, urlInput)) { // check if origin value / url already exists validation
@@ -78,7 +79,7 @@ function Options({classes, ...props}) {
               setSaveStatus(true);
             })
        
-            chrome.runtime.sendMessage({permission: "granted"}) // execute script for url monitoring with updated permissions
+            //chrome.runtime.sendMessage({urlMonitoring: true}) // execute script for url monitoring with updated permissions
           }
         })
         .catch(err => { 

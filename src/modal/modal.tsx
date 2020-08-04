@@ -9,9 +9,11 @@ type Props = {};
 type State = { todos: TOption[]};
 
 const height = window.outerHeight;
-const width = window.outerWidth;
+const windowWidth = window.innerWidth;
+
 // Edge case when body width is not 100% with view screen
-// const leftOffset = (this.document.body.offsetWidth - this.visualViewport.width) / 2 ;
+const offset = (document.body.offsetWidth - windowWidth) / 2  ;
+const leftOffset = Math.abs(offset) > 50 ? offset :0; 
 
 function CustomItem(props) {
 	const { value } = props;
@@ -28,7 +30,7 @@ class Main extends React.Component<Props, State> {
 		}
 	}
 
-	componentWillMount(){
+	componentDidMount(){
 		console.log('will mount init');
 		getChromeStorageApi('todos', (results) => {
 			const todos = results['todos'];
@@ -39,8 +41,7 @@ class Main extends React.Component<Props, State> {
 	render() {
 		const { todos } = this.state;
 			return (
-					<div  className="container" style={{height: height, width: width}}>
-
+					<div  className="container" style={{height: height, width: windowWidth, left: leftOffset}}>
 							<h1>Hello world - My first Extension</h1>
 							<p>Words of encouragement</p>
 							<List options={todos} />

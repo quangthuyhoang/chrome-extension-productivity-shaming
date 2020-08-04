@@ -15,106 +15,102 @@ var count = 0;
 chrome.storage.sync.get(['urlMonitoring'], function(object) {
   
   if(object && object['urlMonitoring']) {
-    chrome.webNavigation.onBeforeNavigate.addListener(enableUrlMonitoring)
+    // chrome.webNavigation.onBeforeNavigate.addListener(enableUrlMonitoring)
+    chrome.tabs.onUpdated.addListener(modalScriptInjection);
   }
 })
 
 chrome.permissions.getAll(function(results) { console.log('all permissions', results)})
 
 chrome.runtime.onMessage.addListener(function(request) {
-  // if (request.modal){
-  //   chrome.tabs.executeScript({
-  //     // code: 'document.body.style.backgroundColor="orange"'
-  //     file: 'js/modal.js'
-  //   });
-  // }
 
-  // console.log('request ' + request.type)
-
+  if (request.tabListener) {
+    console.log('enable tablistener')
+    chrome.tabs.onUpdated.hasListener(tabsOnUpdatedListener);
+    chrome.tabs.onUpdated.addListener(tabsOnUpdatedListener);
+  }
+console.log('request', request)
   
   if (!request.urlMonitoring) {
     
     // chrome.webNavigation.onBeforeNavigate.removeListener(enableUrlMonitoring)
+    chrome.tabs.onUpdated.removeListener(modalScriptInjection);
     // chrome.webNavigation.onDOMContentLoaded.removeListener(enableUrlMonitoring)
     console.log('remove listeners')
-    chrome.webNavigation.onCompleted.removeListener(enableUrlMonitoring)
+    // chrome.webNavigation.onCompleted.removeListener(enableUrlMonitoring)
     // console.log(chrome.tabs.onUpdated)
-    chrome.tabs.onUpdated.removeListener(modalScriptInjection);
+    // chrome.tabs.onUpdated.removeListener(modalScriptInjection);
+    // chrome.tabs.onUpdated.removeListener(loggerListener);
+    
   }
-
+  // enable url monitoring - add listener to start referencing urls from permissions origins
   if (request.urlMonitoring) {
-    // chrome.webNavigation.onDOMContentLoaded.addListener(enableUrlMonitoring)
-    chrome.webNavigation.onCompleted.addListener(enableUrlMonitoring)
+    chrome.tabs.onUpdated.addListener(modalScriptInjection);
+
+    // chrome.webRequest.onBeforeRequest.addListener(
+    //   webRequestListener, // callback
+    //   webRequestFilter, // filter arguments
+    //   opt_extraInfoSpec // optional extra info arguments
+    //   )
+    // chrome.webNavigation.onCompleted.addListener(enableUrlMonitoring)
+    // chrome.webNavigation.onCompleted.addListener(loggerListener)
+    // chrome.tabs.onUpdated.addListener(modalScriptInjection) // adding this line here allows first pop up after enabling monitoring to work, but disabling doesn't work
+
   }
 
-  // if (request.permission == "disable") {
-  //   chrome.webNavigation.onBeforeNavigate.removeListener(enableUrlMonitoring)
-  // }
-
-  // if (request.permission == "granted") {
-  //   chrome.webNavigation.onBeforeNavigate.addListener(enableUrlMonitoring)
-  // }
+ 
 });
 if(chrome.runtime.lastError) {
   console.log('some runtime errror: ' + chrome.runtime.lastError.message);
 };
 
-var modalScriptInjection = function(tab, changeInfo) {
-  console.log('modal inejction tabs', tab)
-  if (changeInfo?.status === "complete") {
-    console.log('inject modal scripts')
-    chrome.tabs.executeScript({
-      file: 'js/modal.js'
-    }, function(results) {
-      console.log('execute scripts for modal')
-    });
-  }
+var modalScriptInjection = function(tabid, changeInfo, tab) {
+  checkPermissions([tab.url], function(results) {
+    console.log('injection check ', results)
+    if (results) {
+      console.log('modal inejction tabs', tabid, 'changeInfo', changeInfo, 'tab',tab)
+      if (changeInfo?.status === "complete" || tab.status === "complete") {
+        console.log('inject modal scripts')
+        chrome.tabs.executeScript({
+          file: 'js/modal.js'
+        }, function(results) {
+          console.log('execute scripts for modal')
+        });
+      }
+    }
+  })
+  
 }
 
+
 function tabStatus(){
-  // return new Promise((resolve, reject) => {
-    chrome.tabs.onUpdated.addListener(modalScriptInjection)
-    // chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-      // modalScriptInjection({tabId, changeInfo, tab}, chrome)
-    //   modalScriptInjection({tabId, changeInfo, tab})
-    // });
-    // chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    //   if (changeInfo?.status === "complete") {
-    //     console.log('inject modal scripts', tabId, changeInfo, tab)
-    //     chrome.tabs.executeScript({
-    //       // code: "alert('hey')" //'document.body.style.backgroundColor="orange"'
-    //       file: 'js/modal.js'
-    //     }, function(results) {
-    //       console.log('execute scripts for modal', tab)
-    //     });
-    //   }
-    
-    // })
-  // })
+
+    chrome.tabs.onUpdated.addListener(modalScriptInjection);
+    chrome.tabs.onUpdated.addListener(loggerListener)
+
 }
+
+function tabsOnUpdatedListener(...params) {
+  console.log('tabs', params);
+}
+
+function loggerListener(...params) {
+  console.log('logger', params)
+}
+
+function webRequestListener(...params) {
+  console.log('webRequest', params);
+  chrome.runtime.sendMessage({tabListener: true})
+}
+
+var webRequestFilter = { urls: ["<all_urls>"]};
+var opt_extraInfoSpec = [];
 
 function enableUrlMonitoring({url, ...rest}) {
   checkPermissions([url], function(results) {
     console.log("resulsts", results, url)
     if(results) { // think of a better way to reduce multiple calls
-      if(count < 1) { // why doesn't it thing pop up
-        tabStatus()
-        // createWindow()
-        // chrome.tabs.executeScript({
-        //   // code: "alert('hey')" //'document.body.style.backgroundColor="orange"'
-        //   file: 'js/modal.js'
-        // }, function(results) {
-        //   console.log('execute scripts for modal')
-        // });
-        // injectModalToCurrentWindow();
-        // getAllWindows().then(logger).catch(logger)
-        // createWindow().then(res => console.log(res)).catch(err => console.error(err));
-        // alert('shame')
-      }; // Add pop box instead of alert
-      count++;
-      setTimeout(function(){
-        count = 0;
-      }, 10000) // TODO: add configurable settimeout, but with default to be maybe a couple of hrs
+      tabStatus()
     }
   
 })
